@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment variables (Crucial for security!)
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Optional: Supabase specific files if generated locally
+# supabase/.temp/
