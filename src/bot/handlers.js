@@ -95,20 +95,35 @@ const handleListTasks = async (bot, msg) => {
 const handleCallback = async (bot, query) => {
   const chatId = query.message.chat.id;
   const [action, value, taskId] = query.data.split(":");
-  if (action === "prog") {
-    const isDone = value === "100";
-    await supabase
-      .from("tasks")
-      .update({ progress: parseInt(value), is_completed: isDone })
-      .eq("id", taskId);
-    const responseText = isDone
-      ? "🎉 Task Completed!"
-      : `📊 Progress updated to ${value}%`;
-    bot.answerCallbackQuery(query.id, { text: responseText });
-    bot.sendMessage(chatId, responseText);
-    showDashboard(bot, chatId);
-  }
+
+  if (action !== "prog") return;
+
+  const isDone = value === "100";
+
+  await supabase
+    .from("tasks")
+    .update({
+      progress: parseInt(value),
+      is_completed: isDone,
+    })
+    .eq("id", taskId);
+
+  // Disable buttons
+  await bot.editMessageReplyMarkup(
+    { inline_keyboard: [] },
+    {
+      chat_id: chatId,
+      message_id: query.message.message_id,
+    },
+  );
+
+  await bot.answerCallbackQuery(query.id, {
+    text: isDone ? "🎉 Task Completed!" : `📊 Progress ${value}%`,
+  });
+
+  showDashboard(bot, chatId);
 };
+
 
 module.exports = {
   handleStart,
