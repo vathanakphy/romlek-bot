@@ -1,3 +1,4 @@
+name: task-planing-bot
 services:
   romlek-bot:
     build: .
