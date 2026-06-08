@@ -1,0 +1,7 @@
+services:
+  romlek-bot:
+    build: .
+    container_name: romlek-bot
+    env_file:
+      - .env
+    restart: unless-stopped
