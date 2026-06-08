@@ -144,11 +144,33 @@ const handleWizardCallback = async (bot, query) => {
     }
 
     try {
-      const { data: user } = await supabase
+      let { data: user } = await supabase
         .from("users")
         .select("id")
         .eq("telegram_id", chatId)
         .single();
+
+      // Auto-register if user not found
+      if (!user) {
+        await supabase
+          .from("users")
+          .upsert(
+            { telegram_id: chatId, username: query.from?.username || null },
+            { onConflict: "telegram_id" }
+          );
+        const result = await supabase
+          .from("users")
+          .select("id")
+          .eq("telegram_id", chatId)
+          .single();
+        user = result.data;
+      }
+
+      if (!user) {
+        clearSession(chatId);
+        return bot.sendMessage(chatId, "⚠️ Could not register. Please send /start first.");
+      }
+
       await supabase.from("tasks").insert({
         user_id: user.id,
         title: session.taskData.title,
